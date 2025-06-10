@@ -1,0 +1,4 @@
+Modify the compose file 
+write k8s manifest and deploy in k8s (migrating)
+template with helmchat amd deploy in helm
+edit script to run without prompts.
