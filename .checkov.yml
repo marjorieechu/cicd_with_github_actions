@@ -1,0 +1,6 @@
+skip-check:
+  - CKV_DOCKER_2
+# # if using config file.checkov.yml flag, add the below
+# output: cli
+# quiet: true
+# compact: true

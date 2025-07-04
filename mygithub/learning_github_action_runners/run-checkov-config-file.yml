@@ -1,0 +1,33 @@
+name: DevOps Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_push_images:
+    name: Build and Push Docker Images to DockerHub
+    runs-on: [self-hosted, s8]
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Check Checkov Version
+        run: |
+          echo "🔍 Verifying Checkov installation..."
+          if ! command -v checkov &> /dev/null; then
+            echo "❌ Checkov is not installed or not in PATH"
+            exit 1
+          fi
+          checkov --version
+
+      - name: Run Checkov Scan with Config File
+        run: |
+          ls -l
+          echo "🔍 Running Checkov on s9/app01/Dockerfile using .checkov.yaml config"
+          cat .checkov.yaml
+          checkov -f s9/app01/api.Dockerfile --config-file .checkov.yaml
+          checkov -f s9/app01/db.Dockerfile --config-file .checkov.yaml
+          checkov -f s9/app01/frontend.Dockerfile --config-file .checkov.yaml

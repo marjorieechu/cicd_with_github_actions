@@ -1,0 +1,56 @@
+name: DevOps Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build_and_push_images:
+    name: Build and Push Docker Images to DockerHub
+    runs-on: [self-hosted, s8]
+
+    env:
+      API_IMAGE: devopseasylearning/s9-api:latest
+      DB_IMAGE: devopseasylearning/s9-db:latest
+      FRONTEND_IMAGE: devopseasylearning/s9-frontend:latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Run Checkov Scan with Config File
+        run: |
+          ls -l
+          echo "🔍 Running Checkov .checkov.yaml config"
+          cat .checkov.yaml
+          checkov -f s9/app01/api.Dockerfile --config-file .checkov.yaml
+          checkov -f s9/app01/db.Dockerfile --config-file .checkov.yaml
+          checkov -f s9/app01/frontend.Dockerfile --config-file .checkov.yaml
+
+      - name: Build Docker Images (API, DB, Frontend)
+        working-directory: s9/app01
+        run: |
+          sudo docker build -f api.Dockerfile -t $API_IMAGE .
+          sudo docker build -f db.Dockerfile -t $DB_IMAGE .
+          sudo docker build -f frontend.Dockerfile -t $FRONTEND_IMAGE .
+          sudo docker images
+
+      - name: Check Trivy Version
+        run: echo "Verifying Trivy installation..."
+          if ! command -v trivy &> /dev/null; then
+          echo "Trivy is not installed or not in Path"
+          exit 1
+          fi
+          trivy --version
+
+      - name: Scan Docker Images with Trivy
+        run: |
+          echo "🔍 Scanning API image..."
+          trivy image --severity MEDIUM,HIGH,CRITICAL --no-progress $API_IMAGE
+
+          # echo "🔍 Scanning DB image..."
+          # trivy image --severity MEDIUM,HIGH,CRITICAL --no-progress $DB_IMAGE
+
+          # echo "🔍 Scanning Frontend image..."
+          # trivy image --severity MEDIUM,HIGH,CRITICAL --no-progress $FRONTEND_IMAGE
