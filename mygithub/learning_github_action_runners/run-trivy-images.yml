@@ -11,9 +11,9 @@ jobs:
     runs-on: [self-hosted, s8]
 
     env:
-      API_IMAGE: devopseasylearning/s9-api:latest
-      DB_IMAGE: devopseasylearning/s9-db:latest
-      FRONTEND_IMAGE: devopseasylearning/s9-frontend:latest
+      API_IMAGE: sentinel/s9-api:latest
+      DB_IMAGE: sentinel/s9-db:latest
+      FRONTEND_IMAGE: sentinel/s9-frontend:latest
 
     steps:
       - name: Checkout Repository
